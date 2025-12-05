@@ -130,32 +130,37 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
 // Auth state listener
 onAuthStateChanged(auth, async (firebaseUser) => {
-  if (firebaseUser) {
-    const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
-    if (userDoc.exists()) {
-      const userData = userDoc.data();
-      useAuthStore.setState({
-        user: {
-          uid: firebaseUser.uid,
-          email: firebaseUser.email,
-          username: userData.username,
-          fullName: userData.fullName,
-          profileImage: userData.profileImage,
-          bio: userData.bio,
-          followersCount: userData.followersCount || 0,
-          followingCount: userData.followingCount || 0,
-          postsCount: userData.postsCount || 0,
-          musicalNote: userData.musicalNote,
-          createdAt: userData.createdAt?.toDate() || new Date(),
-        },
-        firebaseUser,
-        loading: false,
-        initialized: true,
-      });
+  try {
+    if (firebaseUser) {
+      const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        useAuthStore.setState({
+          user: {
+            uid: firebaseUser.uid,
+            email: firebaseUser.email,
+            username: userData.username,
+            fullName: userData.fullName,
+            profileImage: userData.profileImage,
+            bio: userData.bio,
+            followersCount: userData.followersCount || 0,
+            followingCount: userData.followingCount || 0,
+            postsCount: userData.postsCount || 0,
+            musicalNote: userData.musicalNote,
+            createdAt: userData.createdAt?.toDate() || new Date(),
+          },
+          firebaseUser,
+          loading: false,
+          initialized: true,
+        });
+      } else {
+        useAuthStore.setState({ loading: false, initialized: true });
+      }
     } else {
-      useAuthStore.setState({ loading: false, initialized: true });
+      useAuthStore.setState({ user: null, firebaseUser: null, loading: false, initialized: true });
     }
-  } else {
+  } catch (error) {
+    console.error('Auth state change error:', error);
     useAuthStore.setState({ user: null, firebaseUser: null, loading: false, initialized: true });
   }
 });
