@@ -22,7 +22,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
+      <BrowserRouter basename="/saiinsta">
         <Routes>
           <Route path="/auth" element={<Auth />} />
           <Route path="/settings" element={<Settings />} />
